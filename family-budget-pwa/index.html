@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Семейный Бюджет">
+    <meta name="description" content="Приложение для учета личных расходов семьи">
+    
+    <!-- Иконки -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <!-- Манифест -->
+    <link rel="manifest" href="manifest.json">
+    
+    <title>Семейный Бюджет</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Семейный Бюджет</h1>
+            <p>Мобильная версия</p>
+        </header>
+
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('calendar')">📅 Календарь</div>
+            <div class="nav-tab" onclick="switchTab('stats')">📊 Статистика</div>
+        </div>
+
+        <!-- Вкладка Календарь -->
+        <div id="calendar-tab" class="tab-content active">
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <h2 id="currentMonthYear">Январь 2024</h2>
+                    <div class="calendar-nav">
+                        <button onclick="previousMonth()">◀ Пред</button>
+                        <button onclick="goToToday()">Сегодня</button>
+                        <button onclick="nextMonth()">След ▶</button>
+                    </div>
+                </div>
+
+                <div class="calendar-grid">
+                    <div class="calendar-day-header">Пн</div>
+                    <div class="calendar-day-header">Вт</div>
+                    <div class="calendar-day-header">Ср</div>
+                    <div class="calendar-day-header">Чт</div>
+                    <div class="calendar-day-header">Пт</div>
+                    <div class="calendar-day-header">Сб</div>
+                    <div class="calendar-day-header">Вс</div>
+                </div>
+
+                <div class="calendar-grid" id="calendarDays"></div>
+
+                <div class="selected-date-info">
+                    <h3 id="selectedDateDisplay">Выберите дату</h3>
+                </div>
+            </div>
+
+            <div class="day-expenses">
+                <div class="day-expenses-header">
+                    <h3>Расходы за день</h3>
+                    <span class="total" id="dayTotal">0 ₽</span>
+                </div>
+                <div id="dayExpensesList">
+                    <div class="empty-state">Выберите дату в календаре</div>
+                </div>
+            </div>
+
+            <button class="fab-button pulse" onclick="openModal()">+</button>
+        </div>
+
+        <!-- Вкладка Статистика -->
+        <div id="stats-tab" class="tab-content">
+            <div class="stats-section">
+                <div class="calendar-header">
+                    <h2 id="statsMonthYear">Январь 2024</h2>
+                    <div class="calendar-nav">
+                        <button onclick="previousStatsMonth()">◀ Пред</button>
+                        <button onclick="goToCurrentMonth()">Текущий</button>
+                        <button onclick="nextStatsMonth()">След ▶</button>
+                    </div>
+                </div>
+
+                <div class="month-summary">
+                    <div class="summary-card fixed">
+                        <h3>Постоянные</h3>
+                        <div class="amount" id="statsFixed">0 ₽</div>
+                        <p>за месяц</p>
+                    </div>
+                    <div class="summary-card variable">
+                        <h3>Переменные</h3>
+                        <div class="amount" id="statsVariable">0 ₽</div>
+                        <p>за месяц</p>
+                    </div>
+                    <div class="summary-card other">
+                        <h3>Прочие</h3>
+                        <div class="amount" id="statsOther">0 ₽</div>
+                        <p>за месяц</p>
+                    </div>
+                    <div class="summary-card total">
+                        <h3>Всего</h3>
+                        <div class="amount" id="statsTotal">0 ₽</div>
+                        <p>за месяц</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>📊 График расходов</h3>
+                    <div class="bar-chart">
+                        <div class="bar-wrapper">
+                            <div class="bar" id="barFixed" style="height: 0px; background: linear-gradient(to top, #e74c3c, #c0392b);">
+                                <div class="bar-value">0 ₽</div>
+                            </div>
+                            <div class="bar-label">Пост.</div>
+                        </div>
+                        <div class="bar-wrapper">
+                            <div class="bar" id="barVariable" style="height: 0px; background: linear-gradient(to top, #f39c12, #f1c40f);">
+                                <div class="bar-value">0 ₽</div>
+                            </div>
+                            <div class="bar-label">Перем.</div>
+                        </div>
+                        <div class="bar-wrapper">
+                            <div class="bar" id="barOther" style="height: 0px; background: linear-gradient(to top, #3498db, #5dade2);">
+                                <div class="bar-value">0 ₽</div>
+                            </div>
+                            <div class="bar-label">Проч.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="daily-stats">
+                    <h3>📋 По дням месяца</h3>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Пост.</th>
+                                <th>Перем.</th>
+                                <th>Проч.</th>
+                                <th>Итого</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyStatsBody">
+                            <tr><td colspan="5" class="empty-state">Нет данных</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal" id="expenseModal" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>➕ Добавить расход</h3>
+                <button class="close-modal" onclick="closeModal()">✕</button>
+            </div>
+
+            <form onsubmit="addExpense(event)">
+                <div class="form-group">
+                    <label>Тип расхода</label>
+                    <select id="expenseType" required>
+                        <option value="fixed">🏠 Постоянные расходы</option>
+                        <option value="variable">🛒 Переменные расходы</option>
+                        <option value="other">🎭 Прочие расходы</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Категория</label>
+                    <select id="expenseCategory" required>
+                        <option value="Коммунальные платежи">Коммунальные платежи</option>
+                        <option value="Налоги">Налоги</option>
+                        <option value="Аренда">Аренда</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Название расхода</label>
+                    <input type="text" id="expenseName" placeholder="Например: Электричество" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Сумма (₽)</label>
+                    <input type="number" id="expenseAmount" placeholder="0" min="1" required>
+                </div>
+
+                <button type="submit" class="btn btn-add">Добавить</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal()">Отмена</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Уведомление об установке -->
+    <div id="installPrompt" class="install-prompt" style="display: none;">
+        <div class="install-prompt-content">
+            <h3>📱 Установить приложение?</h3>
+            <p>Добавьте на главный экран для быстрого доступа</p>
+            <div class="install-buttons">
+                <button class="btn btn-add" onclick="installApp()">Установить</button>
+                <button class="btn btn-cancel" onclick="dismissInstall()">Позже</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/install.js"></script>
+</body>
+</html>
